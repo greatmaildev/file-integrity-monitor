@@ -491,6 +491,7 @@ if ($runScan) {
                 $mail->Password   = $config['email']['smtp_password'];
                 $mail->SMTPSecure = $config['email']['smtp_encryption'];
                 $mail->Port       = $config['email']['smtp_port'];
+				$mail->SMTPOptions = $config['email']['smtp_options'] ?? [];
                 
                 // Recipients
                 $mail->setFrom($config['email']['from_email'], $config['email']['from_name']);

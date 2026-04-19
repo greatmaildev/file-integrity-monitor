@@ -20,21 +20,40 @@ return [
         'session_timeout' => 60
     ],
     
-    // Email Configuration
-    'email' => [
-        // Basic email settings
-        'from_email' => 'fim@yourdomain.com',
-        'to_email' => 'admin@yourdomain.com',
-        'from_name' => 'File Integrity Monitor',
-        
-        // SMTP Settings (when PHPMailer is available)
-        'use_smtp' => false,  // Set to true to use SMTP instead of PHP mail()
-        'smtp_host' => 'your-smtp-server.com',
-        'smtp_port' => 465,
-        'smtp_encryption' => 'ssl', // 'ssl' or 'tls'
-        'smtp_username' => 'your-email@yourdomain.com',
-        'smtp_password' => 'your-email-password'
-    ],
+// Email Configuration
+       'email' => [
+           // Basic email settings
+           'from_email' => 'fim@yourdomain.com',
+           'to_email' => 'admin@yourdomain.com',
+           'from_name' => 'File Integrity Monitor',
+           
+           // SMTP Settings (when PHPMailer is available)
+           'use_smtp' => false,  // Set to true to use SMTP instead of PHP mail()
+           'smtp_host' => 'your-smtp-server.com',
+           'smtp_port' => 465,
+           'smtp_encryption' => 'ssl', // 'ssl' or 'tls'
+           'smtp_username' => 'your-email@yourdomain.com',
+           'smtp_password' => 'your-email-password',
+           
+           // Advanced SMTP options (optional)
+           // Passed directly to PHPMailer's SMTPOptions property.
+           // Leave commented out for normal operation with a valid SSL/TLS certificate.
+           //
+           // WARNING: The settings below disable TLS certificate verification.
+           // Only use this for mail servers you control where the cert CN does not
+           // match the hostname (e.g. self-signed certs, or certs missing the
+           // hostname from their SAN list). Do NOT use for public mail providers
+           // like Gmail, Office365, SendGrid, etc. — their certs are valid and
+           // disabling verification here weakens security for no reason.
+           //
+           // 'smtp_options' => [
+           //     'ssl' => [
+           //         'verify_peer' => false,
+           //         'verify_peer_name' => false,
+           //         'allow_self_signed' => true
+           //     ]
+           // ]
+       ],
     
     // Monitoring Configuration
     'monitoring' => [

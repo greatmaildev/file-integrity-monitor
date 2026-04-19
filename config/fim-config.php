@@ -10,7 +10,7 @@ return [
     // Security Configuration
     'security' => [
         // Change this to a random string for URL access protection
-        'access_key' => 'x7k9mP2qR8wN5vL3',
+        'access_key' => 'CHANGE-THIS-KEY',
         
         // Admin authentication - change these credentials
         'admin_username' => 'admin',

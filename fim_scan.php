@@ -400,56 +400,82 @@ if ($runScan) {
             $message .= "All previously detected changes have been accepted into the new baseline.\n";
             $message .= "Future scans will compare against this updated baseline.\n";
         } elseif ($hasChanges) {
-            // Get list of domains that have changes
-            $domainsWithChanges = [];
-            foreach ($scan_results['domains'] as $domain => $data) {
-                if (!empty($data['changes']['modified']) || !empty($data['changes']['new']) || !empty($data['changes']['deleted'])) {
-                    $domainsWithChanges[] = $data['name'];
-                }
-            }
-            $domainList = !empty($domainsWithChanges) ? implode(', ', $domainsWithChanges) : 'Multiple Domains';
-            
-            $subject = "File Integrity Alert - " . $domainList . " - Changes Detected on " . date('Y-m-d H:i:s');
-            $message = "File Integrity Monitoring Alert\n";
-            $message .= "Scan completed: " . $scan_results['timestamp'] . "\n";
-            $message .= "Affected domains: " . $domainList . "\n\n";
-            $message .= "Summary:\n";
-            $message .= "- Modified files: " . $scan_results['summary']['changed_files'] . "\n";
-            $message .= "- New files: " . $scan_results['summary']['new_files'] . "\n";
-            $message .= "- Deleted files: " . $scan_results['summary']['deleted_files'] . "\n\n";
-            
-            foreach ($scan_results['domains'] as $domain => $data) {
-                if (!empty($data['changes']['modified']) || !empty($data['changes']['new']) || !empty($data['changes']['deleted'])) {
-                    $message .= "Domain: " . $data['name'] . " (" . $data['path'] . ")\n";
-                    
-                    if (!empty($data['changes']['modified'])) {
-                        $message .= "Modified files:\n";
-                        foreach ($data['changes']['modified'] as $change) {
-                            $message .= "  - " . $change['file'] . " (size change: " . $change['size_change'] . " bytes)\n";
-                        }
-                    }
-                    
-                    if (!empty($data['changes']['new'])) {
-                        $message .= "New files:\n";
-                        foreach ($data['changes']['new'] as $file) {
-                            $message .= "  - " . $file . "\n";
-                        }
-                    }
-                    
-                    if (!empty($data['changes']['deleted'])) {
-                        $message .= "Deleted files:\n";
-                        foreach ($data['changes']['deleted'] as $file) {
-                            $message .= "  - " . $file . "\n";
-                        }
-                    }
-                    $message .= "\n";
-                }
-            }
-            
-            $message .= "Please review these changes and update the baseline if they are legitimate.\n";
-            $message .= "Admin panel: " . (isset($_SERVER['HTTP_HOST']) ? 
-                "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . "?verify=" . $config['security']['access_key'] : 
-                "Run via web interface") . "\n";
+               // Get list of domains that have changes (for subject line)
+               $domainsWithChanges = [];
+               foreach ($scan_results['domains'] as $domain => $data) {
+                   if (!empty($data['changes']['modified']) || !empty($data['changes']['new']) || !empty($data['changes']['deleted'])) {
+                       $domainsWithChanges[] = $data['name'];
+                   }
+               }
+               $domainList = !empty($domainsWithChanges) ? implode(', ', $domainsWithChanges) : 'Multiple Domains';
+               
+               // Full list of scanned domains (for body context)
+               $scannedDomains = [];
+               foreach ($scan_results['domains'] as $domain => $data) {
+                   $scannedDomains[] = $data['name'] ?? $domain;
+               }
+               $scannedList = !empty($scannedDomains) ? implode(', ', $scannedDomains) : 'All Domains';
+               
+               $subject = "File Integrity Alert - " . $domainList . " - Changes Detected on " . date('Y-m-d H:i:s');
+               $message  = "File Integrity Monitoring Alert\n";
+               $message .= "Scan completed: " . $scan_results['timestamp'] . "\n";
+               $message .= "Scanned domains: " . $scannedList . "\n";
+               $message .= "Affected domains: " . $domainList . "\n\n";
+               $message .= "Summary:\n";
+               $message .= "- Domains scanned: " . $scan_results['summary']['domains_scanned'] . "\n";
+               $message .= "- Total files monitored: " . $scan_results['summary']['total_files'] . "\n";
+               $message .= "- Modified files: " . $scan_results['summary']['changed_files'] . "\n";
+               $message .= "- New files: " . $scan_results['summary']['new_files'] . "\n";
+               $message .= "- Deleted files: " . $scan_results['summary']['deleted_files'] . "\n";
+               $message .= "- Execution time: " . $scan_results['execution_time'] . " seconds\n\n";
+               
+               foreach ($scan_results['domains'] as $domain => $data) {
+                   // Error domains (path missing, permissions, etc.) — surface them instead of hiding
+                   if (isset($data['error'])) {
+                       $message .= "Domain: " . $domain . "\n";
+                       $message .= "  ERROR: " . $data['error'] . "\n\n";
+                       continue;
+                   }
+                   
+                   $domainChangeCount = count($data['changes']['modified'])
+                                      + count($data['changes']['new'])
+                                      + count($data['changes']['deleted']);
+                   
+                   $message .= "Domain: " . $data['name'] . " (" . $data['path'] . ")\n";
+                   $message .= "  Files scanned: " . number_format($data['files_scanned']) . "\n";
+                   
+                   if ($domainChangeCount === 0) {
+                       $message .= "  No changes detected\n\n";
+                       continue;
+                   }
+                   
+                   if (!empty($data['changes']['modified'])) {
+                       $message .= "Modified files:\n";
+                       foreach ($data['changes']['modified'] as $change) {
+                           $message .= "  - " . $change['file'] . " (size change: " . $change['size_change'] . " bytes)\n";
+                       }
+                   }
+                   
+                   if (!empty($data['changes']['new'])) {
+                       $message .= "New files:\n";
+                       foreach ($data['changes']['new'] as $file) {
+                           $message .= "  - " . $file . "\n";
+                       }
+                   }
+                   
+                   if (!empty($data['changes']['deleted'])) {
+                       $message .= "Deleted files:\n";
+                       foreach ($data['changes']['deleted'] as $file) {
+                           $message .= "  - " . $file . "\n";
+                       }
+                   }
+                   $message .= "\n";
+               }
+               
+               $message .= "Please review these changes and update the baseline if they are legitimate.\n";
+               $message .= "Admin panel: " . (isset($_SERVER['HTTP_HOST']) ? 
+                   "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . "?verify=" . $config['security']['access_key'] : 
+                   "Run via web interface") . "\n";
         } else {
             // Get list of all scanned domains for clean scan email
             $scannedDomains = [];

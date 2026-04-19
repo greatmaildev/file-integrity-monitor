@@ -28,40 +28,31 @@ A powerful, lightweight PHP-based File Integrity Monitoring system that detects 
 
 ### Option 1: Quick Start (PHP Mail)
 
-1. **Download and extract** this repository to your server
-2. **Generate secure admin password:**
-   
-   php hash_password.php
-   
-   Or via web interface: https://yourdomain.com/path/to/hash_password.php
-   
-3. **Copy the configuration file:**
-   
-   cp config/fim-config.php.example config/fim-config.php
-   
-4. **Edit configuration** - set email addresses, paste your password hash, and enable domains
-5. **Delete the password utility** for security:
-   
-   rm hash_password.php
-   
-6. **Set up cron job** (see Cron Setup Examples below)
+   1. **Download and extract** this repository to your server
+   2. **Generate secure admin password:**
+
+      php hash_password.php
+
+      Or via web interface: https://yourdomain.com/path/to/hash_password.php
+   3. **Edit configuration** - open `config/fim-config.php` and set your access key, email addresses, paste your password hash, and enable domains
+   4. **Delete the password utility** for security:
+
+      rm hash_password.php
+   5. **Set up cron job** (see Cron Setup Examples below)
 
 ### Option 2: Enhanced Setup (SMTP Email)
 
-1. **Install PHPMailer** via Composer:
-   
-   composer install
-   
-2. **Generate secure admin password:**
-   
-   php hash_password.php
-   
-3. **Configure as above**, but set email method to 'smtp' and add SMTP settings
-4. **Delete the password utility** for security:
-   
-   rm hash_password.php
-   
-5. **Set up cron job** (see Cron Setup Examples below)
+   1. **Install PHPMailer** via Composer:
+
+      composer install
+   2. **Generate secure admin password:**
+
+      php hash_password.php
+   3. **Configure as above**, but set `use_smtp` to `true` and fill in the SMTP settings in `config/fim-config.php`
+   4. **Delete the password utility** for security:
+
+      rm hash_password.php
+   5. **Set up cron job** (see Cron Setup Examples below)
 
 ## Configuration
 
@@ -93,6 +84,8 @@ Edit config/fim-config.php to customize your installation:
     'smtp_username' => 'your-email@domain.com',
     'smtp_password' => 'your-email-password'
 ]
+
+**Advanced: TLS certificate bypass for self-signed or mismatched certs.** An optional `smtp_options` key can be added to the email config block to pass options through to PHPMailer's SMTPOptions property. This is useful when your outbound mail server uses a self-signed certificate, or when the cert CN doesn't match the hostname you're connecting to. See `config/fim-config.php` for a commented example. Do not use this with public mail providers (Gmail, Office365, SendGrid, etc.) — their certificates are valid and disabling verification weakens security for no reason.
 
 ### Enable Monitoring for Your Sites
 

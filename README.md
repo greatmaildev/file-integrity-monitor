@@ -188,8 +188,7 @@ curl -s "https://yourdomain.com/path/to/fim_scan.php?verify=your-access-key"
 fim-monitor/
 ├── fim_scan.php              # Main script
 ├── config/
-│   ├── fim-config.php        # Your configuration
-│   └── fim-config.php.example # Configuration template
+│   └── fim-config.php        # Your configuration
 ├── baselines/                # JSON baseline files (auto-created)
 ├── logs/                     # Scan logs (auto-created)
 ├── vendor/                   # Composer dependencies

@@ -40,7 +40,7 @@ error_reporting(E_ALL & ~E_WARNING);
 // Load configuration
 $config_file = __DIR__ . '/config/fim-config.php';
 if (!file_exists($config_file)) {
-    die("Configuration file not found. Please copy config/fim-config.php.example to config/fim-config.php and configure it.");
+    die("Configuration file not found. Please create config/fim-config.php and configure it. See README for installation instructions.");
 }
 $config = require $config_file;
 
